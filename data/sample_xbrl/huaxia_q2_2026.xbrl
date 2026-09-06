@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xbrl>
+  <companyName>Huaxia Fund</companyName>
+  <fundName>Huaxia Growth Select A</fundName>
+  <reportPeriod>2026-06-30</reportPeriod>
+  <fundType>Equity</fundType>
+  <strategy>equity growth</strategy>
+  <fundNAV>1250000000</fundNAV>
+  <unitNAVGrowthRate>8.2%</unitNAVGrowthRate>
+  <equityRatio>78%</equityRatio>
+  <bondRatio>10%</bondRatio>
+  <cashRatio>12%</cashRatio>
+</xbrl>

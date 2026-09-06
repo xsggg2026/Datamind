@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xbrl>
+  <companyName>Boshi Fund</companyName>
+  <fundName>Boshi Stable Bond C</fundName>
+  <reportPeriod>2026-06-30</reportPeriod>
+  <fundType>Bond</fundType>
+  <strategy>fixed income bond enhancement</strategy>
+  <fundNAV>980000000</fundNAV>
+  <unitNAVGrowthRate>3.6%</unitNAVGrowthRate>
+  <equityRatio>5%</equityRatio>
+  <bondRatio>88%</bondRatio>
+  <cashRatio>7%</cashRatio>
+</xbrl>

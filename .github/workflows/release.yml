@@ -1,0 +1,59 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt -r requirements-dev.txt pyinstaller==6.11.1
+
+      - name: Run tests
+        run: pytest tests -q
+
+      - name: Build single-file executable
+        run: |
+          pyinstaller --noconfirm --onefile --name "DataMind" `
+            --collect-submodules numpy `
+            --collect-submodules pandas `
+            --collect-submodules openpyxl `
+            --add-data "templates;templates" `
+            --add-data "static;static" `
+            web_portal.py
+
+      - name: Rename artifact
+        run: Move-Item dist/DataMind.exe "DataMind-${{ github.ref_name }}-windows-x64.exe"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-exe
+          path: DataMind-*-windows-x64.exe
+
+  release:
+    needs: build-windows
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: windows-exe
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: DataMind-*-windows-x64.exe
+          generate_release_notes: true

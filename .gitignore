@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.eggs/
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Environment & secrets
+.env
+.env.*
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Project run artifacts (regenerated per run)
+output/
+data/web_uploads/
+data/downloaded_xbrl/
+data/uploaded_reports/
+*.log
+
+# Keep sample inputs tracked
+!data/sample_xbrl/
+!data/sample_manifest.csv
+
+# PyInstaller / packaging
+build/
+dist/
+*.spec
+
+# Pytest / coverage
+.pytest_cache/
+.coverage
+htmlcov/

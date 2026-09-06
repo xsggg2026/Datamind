@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DataMind 网页版分析软件</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="bg-shape bg-shape-a"></div>
+  <div class="bg-shape bg-shape-b"></div>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-card">
+        <h2>分析历史</h2>
+        {% if sidebar_runs %}
+        <div class="compare-form" id="compare-form">
+          <ul class="run-list">
+            {% for r in sidebar_runs %}
+            <li class="run-item {% if r.active %}active{% endif %}" data-run-id="{{ r.run_id }}">
+              <input type="checkbox" class="run-check" value="{{ r.run_id }}"
+                {% if r.run_id in (selected_runs or []) %}checked{% endif %} />
+              <a class="run-link" href="{{ url_for('view_run', run_id=r.run_id) }}" title="{{ r.fund_name }}">
+                <span class="run-title">{{ r.fund_name }}</span>
+                <span class="run-sub">{{ r.company }}{% if r.report_period %} · {{ r.report_period }}{% endif %}</span>
+                <span class="run-sub">{{ r.generated_at }}</span>
+              </a>
+              <button type="button" class="delete-btn" data-run-id="{{ r.run_id }}" data-fund-name="{{ r.fund_name }}" title="删除此分析记录">✕</button>
+            </li>
+            {% endfor %}
+          </ul>
+          <div class="sidebar-actions">
+            <button type="button" class="primary-btn compare-btn" id="compare-btn" disabled>对比选中（需≥2项）</button>
+            <button type="button" class="delete-selected-btn" id="delete-selected-btn" disabled>删除选中</button>
+          </div>
+        </div>
+        {% else %}
+        <p class="sidebar-empty">暂无历史分析。抓取一次 URL 或上传 XML 后，这里会列出每次分析结果，点击即可回看，勾选即可参与对比。</p>
+        {% endif %}
+      </div>
+
+      {% if run_id %}
+      <div class="sidebar-card">
+        <h2>本次分析导航</h2>
+        <ul class="anchor-list">
+          <li><a href="#sec-output">输出文件</a></li>
+          <li><a href="#sec-extract">第一层：抓取数据</a></li>
+          {% for t in extraction_previews %}
+          <li class="sub"><a href="#ext-{{ loop.index }}">{{ t.sheet }}</a></li>
+          {% endfor %}
+          <li><a href="#sec-analysis">第二层：4维分析</a></li>
+          {% for d in analysis_blocks %}
+          <li class="sub"><a href="#dim-{{ d.dim }}">{{ d.title }}</a></li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+
+      {% if compare_mode and comparison %}
+      <div class="sidebar-card">
+        <h2>对比导航</h2>
+        <ul class="anchor-list">
+          {% for s in comparison.sections %}
+          <li><a href="#cmp-{{ s.key }}">{{ s.title }}</a></li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+    </aside>
+
+    <div class="content">
+      <header class="hero">
+        <h1>DataMind 基金报告智能分析</h1>
+        <p>输入可爬取网址或上传 XML/XBRL，一次生成抓取数据与 4 维分析；左侧历史可回看，勾选多个可横向对比。</p>
+      </header>
+
+      <section class="panel input-panel">
+        <h2>输入源</h2>
+        <form method="post" action="{{ url_for('run_job') }}" enctype="multipart/form-data" class="form-grid">
+          <label for="report_url">报告 URL</label>
+          <input id="report_url" name="report_url" type="url" placeholder="http://eid.csrc.gov.cn/xbrl/REPORT/HTML/..." />
+
+          <label for="xml_file">上传 XML/XBRL</label>
+          <input id="xml_file" name="xml_file" type="file" accept=".xml,.xbrl" />
+
+          <button type="submit" class="primary-btn">开始抓取并分析</button>
+        </form>
+        {% if error %}
+        <div class="alert">{{ error }}</div>
+        {% endif %}
+        {% if compare_error %}
+        <div class="alert">{{ compare_error }}</div>
+        {% endif %}
+      </section>
+
+      {% if compare_mode %}
+      <section class="panel compare-panel">
+        <h2>对比分析{% if comparison %}（{{ comparison.entries|length }} 个分析结果）{% endif %}</h2>
+
+        {% if comparison %}
+        <div class="entry-grid">
+          {% for e in comparison.entries %}
+          <div class="card entry-card">
+            <span>分析 {{ loop.index }}</span>
+            <strong>{{ e.meta.fund_name }}</strong>
+            <small>{{ e.meta.company }}{% if e.meta.report_period %} · 报告期 {{ e.meta.report_period }}{% endif %}</small>
+            <small>{{ e.meta.generated_at }}</small>
+          </div>
+          {% endfor %}
+        </div>
+
+        {% for s in comparison.sections %}
+        <details class="sheet-block cmp-block" id="cmp-{{ s.key }}" {% if loop.first %}open{% endif %}>
+          <summary>{{ s.title }}</summary>
+          {% if s.note %}
+          <p class="cmp-note">{{ s.note }}</p>
+          {% endif %}
+          {% if s.chart_ids %}
+          <div class="chart-grid cmp-chart-grid">
+            {% for cid in s.chart_ids %}
+            <div class="chart-card">
+              <canvas id="{{ cid }}"></canvas>
+            </div>
+            {% endfor %}
+          </div>
+          {% endif %}
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  {% for c in s.columns %}
+                  <th>{{ c }}</th>
+                  {% endfor %}
+                </tr>
+              </thead>
+              <tbody>
+                {% for row in s.rows %}
+                <tr>
+                  {% for c in s.columns %}
+                  <td>{{ row[c] }}</td>
+                  {% endfor %}
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </details>
+        {% endfor %}
+        {% else %}
+        <div class="chart-empty">在左侧"分析历史"中勾选至少 2 个分析结果，即可在此查看 6 个方向的对比：基金规模对比（公司 + 基金）、规模排名、各阶段收益率对比、超额收益分析、收益-风险综合评估、同类基金业绩排名。</div>
+        {% endif %}
+      </section>
+      {% endif %}
+
+      {% if run_id %}
+      <section class="panel output-panel" id="sec-output">
+        <h2>输出文件{% if viewed_meta %}（回看：{{ viewed_meta.fund_name }}）{% endif %}</h2>
+        <div class="file-row">
+          <a class="file-btn" href="{{ url_for('download', run_id=run_id, kind='extracted') }}">下载抓取数据: {{ extracted_name }}</a>
+          <a class="file-btn" href="{{ url_for('download', run_id=run_id, kind='analysis') }}">下载4维分析: {{ analysis_name }}</a>
+          <a class="file-btn ghost" href="{{ url_for('download', run_id=run_id, kind='brief') }}">下载简报: {{ brief_name }}</a>
+        </div>
+        <div class="summary-cards">
+          <div class="card"><span>记录数</span><strong>{{ summary.records }}</strong></div>
+          <div class="card"><span>基金数</span><strong>{{ summary.funds }}</strong></div>
+          <div class="card"><span>公司数</span><strong>{{ summary.companies }}</strong></div>
+        </div>
+      </section>
+
+      <section class="panel viewer-panel" id="sec-extract">
+        <div class="tabs">
+          <button class="tab active" data-tab="tab-extract">第一层：抓取数据</button>
+          <button class="tab" data-tab="tab-analysis">第二层：4维分析</button>
+        </div>
+
+        <div id="tab-extract" class="tab-content active">
+          <h3>11表抓取结果预览</h3>
+          {% for t in extraction_previews %}
+          <details class="sheet-block" id="ext-{{ loop.index }}" {% if loop.first %}open{% endif %}>
+            <summary>{{ t.sheet }} ({{ t.rows }} 行, {{ t.cols }} 列)</summary>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    {% for c in t.columns %}
+                    <th>{{ c }}</th>
+                    {% endfor %}
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for row in t.data %}
+                  <tr>
+                    {% for cell in row %}
+                    <td>{{ cell }}</td>
+                    {% endfor %}
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </details>
+          {% endfor %}
+        </div>
+
+        <div id="tab-analysis" class="tab-content">
+          <h3 id="sec-analysis">4维分析结果预览</h3>
+          {% for d in analysis_blocks %}
+          <details class="sheet-block" id="dim-{{ d.dim }}" {% if loop.first %}open{% endif %}>
+            <summary>{{ d.title }}（图表 {{ d.charts|length }} 张，数据表 {{ d.tables|length }} 张）</summary>
+            {% if d.charts %}
+            <div class="chart-grid dim-chart-grid">
+              {% for c in d.charts %}
+              <div class="chart-card">
+                <h4>{{ c.title }}</h4>
+                <canvas id="{{ c.id }}"></canvas>
+              </div>
+              {% endfor %}
+            </div>
+            {% else %}
+            <div class="chart-empty">该维度暂无图表。</div>
+            {% endif %}
+
+            {% for t in d.tables %}
+            <h4>{{ t.display_name }} ({{ t.rows }} 行, {{ t.cols }} 列)</h4>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    {% for c in t.columns %}
+                    <th>{{ c }}</th>
+                    {% endfor %}
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for row in t.data %}
+                  <tr>
+                    {% for cell in row %}
+                    <td>{{ cell }}</td>
+                    {% endfor %}
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            {% endfor %}
+          </details>
+          {% endfor %}
+        </div>
+      </section>
+      {% endif %}
+    </div>
+  </main>
+
+  <script>
+    window.CHART_CARDS = {{ chart_cards|default([], true)|tojson }};
+  </script>
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
