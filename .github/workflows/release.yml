@@ -62,7 +62,7 @@ jobs:
         with:
           name: windows-exe
           path: |
-            DataMind-*-windows-x64.exe
+            dist/DataMind-*-windows-x64.exe
             DataMind-*-windows-x64.zip
 
   build-macos:
