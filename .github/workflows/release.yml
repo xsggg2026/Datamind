@@ -67,17 +67,9 @@ jobs:
 
   build-macos:
     needs: test
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - os: macos-13
-            arch: x86_64
-            suffix: macos-x64
-          - os: macos-14
-            arch: arm64
-            suffix: macos-arm64
-    runs-on: ${{ matrix.os }}
+    # Apple Silicon only: GitHub retired the free Intel (macos-13) runner image;
+    # Intel macOS builds now require paid "larger runners".
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -97,14 +89,14 @@ jobs:
             --add-data "templates:templates" \
             --add-data "static:static" \
             web_portal.py
-      - name: Package app bundle with guide
+      - name: Package app bundle with Mac guide
         run: |
-          cp USER_GUIDE.txt dist/USER_GUIDE.txt
-          ditto -c -k --keepParent dist/DataMind.app "DataMind-${{ github.ref_name }}-${{ matrix.suffix }}.zip"
+          cp USER_GUIDE_MAC.txt dist/USER_GUIDE.txt
+          ditto -c -k --keepParent dist/DataMind.app "DataMind-${{ github.ref_name }}-macos-arm64.zip"
       - uses: actions/upload-artifact@v4
         with:
-          name: macos-${{ matrix.suffix }}
-          path: DataMind-${{ github.ref_name }}-${{ matrix.suffix }}.zip
+          name: macos-arm64
+          path: DataMind-${{ github.ref_name }}-macos-arm64.zip
 
   docker:
     needs: test
@@ -147,6 +139,5 @@ jobs:
           files: |
             artifacts/**/DataMind-*-windows-x64.exe
             artifacts/**/DataMind-*-windows-x64.zip
-            artifacts/**/DataMind-*-macos-x64.zip
             artifacts/**/DataMind-*-macos-arm64.zip
           generate_release_notes: true
