@@ -603,6 +603,8 @@ def create_app() -> Flask:
 
 if __name__ == "__main__":
     import argparse
+    import threading
+    import webbrowser
 
     parser = argparse.ArgumentParser(description="DataMind web portal")
     parser.add_argument(
@@ -611,6 +613,21 @@ if __name__ == "__main__":
         help="Bind address; use 0.0.0.0 to allow access from phones on the same network",
     )
     parser.add_argument("--port", type=int, default=8787, help="Port (default 8787)")
+    parser.add_argument(
+        "--no-browser",
+        action="store_true",
+        help="Do not auto-open the browser on startup",
+    )
     args = parser.parse_args()
     app = create_app()
+
+    if not args.no_browser and args.host in ("127.0.0.1", "localhost"):
+        threading.Timer(
+            1.5,
+            webbrowser.open,
+            args=[f"http://127.0.0.1:{args.port}"],
+        ).start()
+
+    print(f"\n  DataMind 已启动：http://127.0.0.1:{args.port}")
+    print("  使用期间请保持本窗口开启；关闭窗口即退出程序。\n")
     app.run(host=args.host, port=args.port, debug=False)

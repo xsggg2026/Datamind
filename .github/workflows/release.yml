@@ -56,10 +56,18 @@ jobs:
       - name: Rename artifact
         run: Move-Item dist/DataMind.exe "DataMind-${{ github.ref_name }}-windows-x64.exe"
 
+      - name: Package exe with user guide
+        run: |
+          Copy-Item "使用说明.txt" "dist/使用说明.txt"
+          Compress-Archive -Path "dist/DataMind-${{ github.ref_name }}-windows-x64.exe", "dist/使用说明.txt" `
+            -DestinationPath "DataMind-${{ github.ref_name }}-windows-x64.zip"
+
       - uses: actions/upload-artifact@v4
         with:
           name: windows-exe
-          path: DataMind-*-windows-x64.exe
+          path: |
+            DataMind-*-windows-x64.exe
+            DataMind-*-windows-x64.zip
 
   docker:
     needs: test
@@ -105,5 +113,7 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: DataMind-*-windows-x64.exe
+          files: |
+            DataMind-*-windows-x64.exe
+            DataMind-*-windows-x64.zip
           generate_release_notes: true

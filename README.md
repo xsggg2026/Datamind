@@ -22,9 +22,9 @@
 
 ## 快速开始
 
-### 方式一：下载exe（免装Python）
+### 方式一：下载exe（免装Python，推荐给非技术用户）
 
-从 [Releases](../../releases) 下载 `DataMind-vX.X.X-windows-x64.exe`，双击运行后访问 <http://127.0.0.1:8787>。分析结果保存在 exe 同级的 `output/web_runs/` 目录。
+从 [Releases](../../releases) 下载 `DataMind-vX.X.X-windows-x64.zip`，解压后**双击 `DataMind.exe`**——浏览器会自动打开分析页面（若未自动打开，访问 `http://127.0.0.1:8787`）。详细图文步骤、常见问题见压缩包内的《使用说明.txt》。分析结果保存在 exe 同级的 `output/web_runs/` 目录。
 
 ### 方式二：从源码运行
 
