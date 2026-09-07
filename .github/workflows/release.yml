@@ -90,12 +90,12 @@ jobs:
           pip install -r requirements.txt -r requirements-dev.txt pyinstaller==6.11.1
       - name: Build macOS app bundle
         run: |
-          pyinstaller --noconfirm --windowed --name "DataMind" `
-            --collect-submodules numpy `
-            --collect-submodules pandas `
-            --collect-submodules openpyxl `
-            --add-data "templates:templates" `
-            --add-data "static:static" `
+          pyinstaller --noconfirm --windowed --name "DataMind" \
+            --collect-submodules numpy \
+            --collect-submodules pandas \
+            --collect-submodules openpyxl \
+            --add-data "templates:templates" \
+            --add-data "static:static" \
             web_portal.py
       - name: Package app bundle with guide
         run: |
