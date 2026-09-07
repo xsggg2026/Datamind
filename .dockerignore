@@ -1,0 +1,17 @@
+.git
+.venv
+venv
+__pycache__
+*.py[cod]
+output
+data/web_uploads
+data/uploaded_reports
+data/downloaded_xbrl
+build
+dist
+tests
+.github
+.pytest_cache
+*.log
+Dockerfile
+.dockerignore

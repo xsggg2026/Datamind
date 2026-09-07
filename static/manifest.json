@@ -1,0 +1,23 @@
+{
+  "name": "DataMind 基金报告智能分析",
+  "short_name": "DataMind",
+  "description": "公募基金定期报告抓取、11 表标准化提取与 4 维竞品分析",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f4faff",
+  "theme_color": "#2d80bf",
+  "icons": [
+    {
+      "src": "/static/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

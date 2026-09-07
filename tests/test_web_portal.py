@@ -113,3 +113,14 @@ def test_index_lists_runs(portal):
     html = client.get("/").get_data(as_text=True)
     assert run_id in html
     assert "删除选中" in html
+
+
+def test_pwa_assets_served(portal):
+    client, _ = portal
+    assert client.get("/static/manifest.json").status_code == 200
+    assert client.get("/static/icons/apple-touch-icon.png").status_code == 200
+    assert client.get("/static/icons/icon-512.png").status_code == 200
+    html = client.get("/").get_data(as_text=True)
+    assert 'rel="manifest"' in html
+    assert 'rel="apple-touch-icon"' in html
+    assert "apple-mobile-web-app-capable" in html

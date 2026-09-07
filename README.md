@@ -39,15 +39,22 @@ python web_portal.py
 
 打开 <http://127.0.0.1:8787>。
 
-### 手机 / iPad 访问（同一局域网）
+### 手机 / iPad（iOS、Android）访问
 
-Web 界面自带响应式布局与 `viewport` 配置，iPhone / iPad 浏览器可直接使用（需电脑保持开机运行服务）：
+应用本体是 Web 服务，手机浏览器即可使用（界面已适配移动端，无需安装任何东西）。两种方式：
+
+**方式一：局域网**——电脑运行 `python web_portal.py --host 0.0.0.0`，手机连同一 Wi-Fi 访问 `http://<电脑IP>:8787`（`ipconfig` 查看 IPv4 地址；首次运行 Windows 防火墙弹窗请选"允许"）。此模式下手机能用的前提是电脑开着服务。
+
+**方式二：部署到服务器（推荐，任何设备随时可用）**——把服务跑在云主机或 NAS 上：
 
 ```bash
-python web_portal.py --host 0.0.0.0
+docker build -t datamind .
+docker run -d --name datamind -p 8787:8787 -v datamind_output:/app/output datamind
 ```
 
-然后在手机浏览器访问 `http://<电脑局域网IP>:8787`（`ipconfig` 查看 IPv4 地址，如 `192.168.1.100:8787`）。首次运行 Windows 防火墙弹窗请选择"允许"；打包版 exe 同样支持 `DataMind.exe --host 0.0.0.0`。默认不开启局域网访问，仅本机使用时无需任何改动。
+之后所有设备访问 `http://<服务器IP>:8787`。推 `v*` tag 发版时，CI 会自动把 Docker 镜像发布到 `ghcr.io/<用户名>/datamind`，服务器上 `docker pull` 即可升级。
+
+**把网页变成手机上的"App"（PWA）**：iPhone Safari 打开地址 → 分享按钮 → **添加到主屏幕**，即可获得带图标的独立全屏窗口，体验接近原生 App。
 
 ### 命令行
 

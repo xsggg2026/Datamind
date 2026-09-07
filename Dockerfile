@@ -1,0 +1,17 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY app.py analyze_selected.py web_portal.py ./
+COPY src ./src
+COPY templates ./templates
+COPY static ./static
+
+EXPOSE 8787
+# analysis history survives container replacement when this is mounted as a volume
+VOLUME ["/app/output"]
+
+CMD ["python", "web_portal.py", "--host", "0.0.0.0", "--port", "8787"]
