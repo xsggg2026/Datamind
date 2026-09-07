@@ -58,8 +58,8 @@ jobs:
 
       - name: Package exe with user guide
         run: |
-          Copy-Item "使用说明.txt" "dist/使用说明.txt"
-          Compress-Archive -Path "dist/DataMind-${{ github.ref_name }}-windows-x64.exe", "dist/使用说明.txt" `
+          Copy-Item "USER_GUIDE.txt" "dist/USER_GUIDE.txt"
+          Compress-Archive -Path "dist/DataMind-${{ github.ref_name }}-windows-x64.exe", "dist/USER_GUIDE.txt" `
             -DestinationPath "DataMind-${{ github.ref_name }}-windows-x64.zip"
 
       - uses: actions/upload-artifact@v4
