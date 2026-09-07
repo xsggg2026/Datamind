@@ -39,6 +39,16 @@ python web_portal.py
 
 打开 <http://127.0.0.1:8787>。
 
+### 手机 / iPad 访问（同一局域网）
+
+Web 界面自带响应式布局与 `viewport` 配置，iPhone / iPad 浏览器可直接使用（需电脑保持开机运行服务）：
+
+```bash
+python web_portal.py --host 0.0.0.0
+```
+
+然后在手机浏览器访问 `http://<电脑局域网IP>:8787`（`ipconfig` 查看 IPv4 地址，如 `192.168.1.100:8787`）。首次运行 Windows 防火墙弹窗请选择"允许"；打包版 exe 同样支持 `DataMind.exe --host 0.0.0.0`。默认不开启局域网访问，仅本机使用时无需任何改动。
+
 ### 命令行
 
 ```bash

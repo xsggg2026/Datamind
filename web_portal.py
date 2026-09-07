@@ -599,5 +599,15 @@ def create_app() -> Flask:
 
 
 if __name__ == "__main__":
+    import argparse
+
+    parser = argparse.ArgumentParser(description="DataMind web portal")
+    parser.add_argument(
+        "--host",
+        default="127.0.0.1",
+        help="Bind address; use 0.0.0.0 to allow access from phones on the same network",
+    )
+    parser.add_argument("--port", type=int, default=8787, help="Port (default 8787)")
+    args = parser.parse_args()
     app = create_app()
-    app.run(host="127.0.0.1", port=8787, debug=False)
+    app.run(host=args.host, port=args.port, debug=False)
