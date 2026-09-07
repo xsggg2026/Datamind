@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -10,12 +11,6 @@ import uuid
 
 import pandas as pd
 from flask import Flask, abort, redirect, render_template, request, send_file, url_for
-
-if getattr(sys, "frozen", False):
-    # PyInstaller onefile mode: keep run artifacts next to the exe, not in the temp extraction dir
-    BASE_DIR = Path(sys.executable).resolve().parent
-else:
-    BASE_DIR = Path(__file__).resolve().parent
 
 from src.datamind.comparison import (
     EXTRACTED_FILE,
@@ -31,10 +26,18 @@ from src.datamind.selected_analysis import (
     write_template_analysis_report,
 )
 
+if getattr(sys, "frozen", False):
+    # PyInstaller onefile mode: keep run artifacts next to the exe, not in the temp extraction dir
+    BASE_DIR = Path(sys.executable).resolve().parent
+else:
+    BASE_DIR = Path(__file__).resolve().parent
 
-BASE_DIR = Path(__file__).resolve().parent
-OUTPUT_ROOT = BASE_DIR / "output" / "web_runs"
-UPLOAD_ROOT = BASE_DIR / "data" / "web_uploads"
+# Docker/server deployments point these at a mounted volume via env vars;
+# defaults keep desktop/exe usage self-contained next to the code or exe.
+_data_root = Path(os.environ.get("DATAMIND_OUTPUT_DIR", BASE_DIR / "output"))
+_upload_data_root = Path(os.environ.get("DATAMIND_UPLOAD_DIR", BASE_DIR / "data" / "web_uploads"))
+OUTPUT_ROOT = _data_root / "web_runs"
+UPLOAD_ROOT = _upload_data_root
 ALLOWED_UPLOAD_EXT = {".xml", ".xbrl"}
 
 
