@@ -54,7 +54,9 @@ jobs:
             web_portal.py
 
       - name: Rename artifact
-        run: Move-Item dist/DataMind.exe "DataMind-${{ github.ref_name }}-windows-x64.exe"
+        run: |
+          Move-Item dist/DataMind.exe "DataMind-${{ github.ref_name }}-windows-x64.exe"
+          Move-Item "DataMind-${{ github.ref_name }}-windows-x64.exe" dist/
 
       - name: Package exe with user guide
         run: |
