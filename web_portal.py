@@ -27,8 +27,13 @@ from src.datamind.selected_analysis import (
 )
 
 if getattr(sys, "frozen", False):
-    # PyInstaller onefile mode: keep run artifacts next to the exe, not in the temp extraction dir
-    BASE_DIR = Path(sys.executable).resolve().parent
+    # PyInstaller frozen mode
+    if sys.platform == "darwin":
+        # macOS .app: keep data in the user's home folder (writable & findable)
+        BASE_DIR = Path.home() / "DataMind"
+    else:
+        # Windows exe: keep run artifacts next to the exe, not in the temp extraction dir
+        BASE_DIR = Path(sys.executable).resolve().parent
 else:
     BASE_DIR = Path(__file__).resolve().parent
 
